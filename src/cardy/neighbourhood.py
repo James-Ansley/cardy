@@ -1,17 +1,16 @@
-from collections.abc import Iterable
+from collections.abc import Mapping
 
 from .distance import distance
 from .types import CardSort
 
-
 __all__ = ("neighbourhood",)
 
 
-def neighbourhood[T](
+def neighbourhood[K, T](
       d: int,
       probe: CardSort[T],
-      sorts: Iterable[CardSort[T]],
-) -> tuple[CardSort[T], ...]:
+      sorts: Mapping[K, CardSort[T]],
+) -> set[K]:
     """
     Returns the d-neighbourhood of the given probe sort in the sorts iterable.
 
@@ -23,4 +22,4 @@ def neighbourhood[T](
     :param sorts: A collection of sorts to search for the neighbourhood in
     :return: The d-neighbourhood of the given probe
     """
-    return tuple([sort for sort in sorts if distance(probe, sort) <= d])
+    return {key for key, sort in sorts.items() if distance(probe, sort) <= d}

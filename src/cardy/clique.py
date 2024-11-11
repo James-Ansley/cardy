@@ -1,4 +1,4 @@
-from collections.abc import Collection
+from collections.abc import Collection, Mapping
 from random import Random
 
 from .distance import distance
@@ -17,11 +17,11 @@ class Selector:
         return self.random.sample(tuple(collection), k=1)[0]
 
 
-def random_strategy[T](
+def random_strategy[K, T](
       _: int,
-      candidates: Collection[CardSort[T]],
+      candidates: Mapping[K, CardSort[T]],
       selector: Selector = Selector(),
-) -> CardSort[T]:
+) -> K:
     """
     A heuristic strategy to select clique candidates at random.
 
@@ -34,11 +34,11 @@ def random_strategy[T](
     return selector.select(candidates)
 
 
-def greedy_strategy[T](
+def greedy_strategy[K, T](
       d: int,
-      candidates: Collection[CardSort[T]],
+      candidates: Mapping[K, CardSort[T]],
       selector: Selector = Selector(),
-) -> CardSort[T]:
+) -> K:
     """
     A heuristic strategy to select candidates from a set of sorts to add to a
     clique. See: <https://doi.org/10.1111/j.1468-0394.2005.00304.x>
@@ -54,21 +54,22 @@ def greedy_strategy[T](
     """
     current_max = 0
     max_candidates = []
-    for candidate in candidates:
+    for key, candidate in candidates.items():
         size = len(neighbourhood(d, candidate, candidates))
         if size > current_max:
-            max_candidates = [candidate]
+            max_candidates = [key]
+            current_max = size
         elif size == current_max:
-            max_candidates.append(candidate)
+            max_candidates.append(key)
     return selector.select(max_candidates)
 
 
-def clique[T](
+def clique[K, T](
       d: int,
       probe: CardSort[T],
-      sorts: Collection[CardSort[T]],
+      sorts: Mapping[K, CardSort[T]],
       strategy: CliqueHeuristic[T] = greedy_strategy,
-) -> tuple[CardSort[T], ...]:
+) -> set[K]:
     """
     Computes the d-clique centred around the given probe sort using the given
     heuristic strategy.
@@ -86,13 +87,18 @@ def clique[T](
         the clique.
     :return: A d-clique around the probe sort
     """
-    clique_list = [probe] if probe in sorts else []
-    candidates = {s for s in sorts if s != probe and distance(s, probe) <= d}
+    clique_set = {
+        key for key, sort in sorts.items() if distance(sort, probe) == 0
+    }
+    candidates = {
+        key: sort for key, sort in sorts.items()
+        if 0 < distance(sort, probe) <= d
+    }
     while candidates:
         selected = strategy(d, candidates)
-        clique_list.append(selected)
+        clique_set.add(selected)
         candidates = {
-            s for s in candidates
-            if s != selected and distance(s, selected) <= d
+            key: sort for key, sort in candidates.items()
+            if key != selected and distance(sort, candidates[selected]) <= d
         }
-    return tuple(clique_list)
+    return clique_set

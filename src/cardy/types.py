@@ -1,6 +1,7 @@
-from collections.abc import Callable, Collection, Hashable, Set
+from collections.abc import Callable, Collection, Mapping, Set
 
 __all__ = ("CardSort", "CliqueHeuristic")
 
-type CardSort[T: Hashable] = Collection[Set[T]]
-type CliqueHeuristic[T] = Callable[[int, Collection[CardSort[T]]], CardSort[T]]
+type CardSort[T] = Collection[Set[T]]
+type CliqueHeuristic[K, T] = \
+    Callable[[int, Mapping[K, CardSort[T]]], K]
