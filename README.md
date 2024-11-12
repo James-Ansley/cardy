@@ -4,10 +4,11 @@
 > This project is in alpha, significant changes and additions are expected.
 
 Low-level card sorting utilities to compare card sorts — including calculating
-edit distances, d-neighbourhoods, and d-cliques of card sorts.
+edit distances, d-neighbourhoods, d-cliques, and orthogonality of card sorts.
 
 It is recommended to read
 [Deibel et al. (2005)](https://doi.org/10.1111/j.1468-0394.2005.00304.x)[^1]
+and [Fossum & Haller (2005)](https://doi.org/10.1111/j.1468-0394.2005.00305.x)[^2]
 to familiarize yourself with the metrics covered in this library.
 In fact, that entie special issue of Expert Systems is excellent reading for
 anyone interested in analysing card sorting data.
@@ -109,7 +110,8 @@ or a deterministic `Selector` which provides a select method that picks a
 candidate in the case of ambiguity:
 
 ```python
-from cardy import clique, Selector, greedy_strategy
+from cardy import clique
+from cardy.clique import Selector, greedy_strategy
 
 
 class MinSelector(Selector):
@@ -137,6 +139,29 @@ print(f"1-clique around `{probe}`: {one_clique}")
 
 Alternatively, a seed can be passed to the base `Selector` constructor.
 
+### Orthogonality
+
+The orthogonality of a collection of sorts can be calculated with the
+`orthogonality` function:
+
+```python
+from cardy import orthogonality
+
+p1 = (
+    ({1, 3, 4, 5, 6, 7, 13, 14, 15, 22, 23},
+     {2, 8, 9, 10, 11, 12, 16, 17, 18, 19, 20, 21, 24, 25, 26}),
+    ({1, 3, 4, 6, 7, 10, 13, 14, 15, 18, 23, 26},
+     {2, 5, 8, 9, 11, 12, 16, 17, 19, 20, 21, 22, 24, 25}),
+    ({1, 2, 5, 8, 9, 11, 12, 16, 17, 18, 19, 20, 21, 22, 24, 25},
+     {3, 4, 6, 7, 10, 13, 14, 15, 23, 26}),
+)
+p1_orthogonality = orthogonality(p1)
+print(f"P1 orthogonality: {p1_orthogonality:.2f}")  # P1 orthogonality: 2.33
+```
+
 [^1]: Deibel, K., Anderson, R. and Anderson, R. (2005), Using edit distance
 to analyze card sorts. Expert Systems, 22: 129-138.
 https://doi.org/10.1111/j.1468-0394.2005.00304.x
+
+[^2]: Fossum, T. and Haller, S. (2005), Measuring card sort orthogonality.
+Expert Systems, 22: 139-146. https://doi.org/10.1111/j.1468-0394.2005.00305.x

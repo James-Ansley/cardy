@@ -1,7 +1,8 @@
 import json
 from typing import Collection
 
-from cardy import Selector, clique, greedy_strategy
+from cardy import clique
+from cardy.clique import Selector, greedy_strategy
 from utils import test
 
 
