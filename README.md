@@ -10,7 +10,7 @@ It is recommended to read
 [Deibel et al. (2005)](https://doi.org/10.1111/j.1468-0394.2005.00304.x)[^1]
 and [Fossum & Haller (2005)](https://doi.org/10.1111/j.1468-0394.2005.00305.x)[^2]
 to familiarize yourself with the metrics covered in this library.
-In fact, that entie special issue of Expert Systems is excellent reading for
+In fact, that entire special issue of Expert Systems is excellent reading for
 anyone interested in analysing card sorting data.
 
 ## Installation

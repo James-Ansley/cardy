@@ -1,7 +1,7 @@
 from collections.abc import Collection, Mapping
 from itertools import combinations
 
-from . import distance
+from .distance import distance
 from .types import CardSort
 
 __all__ = ("DisjointSet", "min_spanning_tree", "orthogonality")
