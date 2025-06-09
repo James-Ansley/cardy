@@ -1,5 +1,8 @@
 # Cardy
 
+[![PyPi](https://img.shields.io/pypi/v/cardy?label=PyPi&labelColor=%23ffd343&color=%230073b7)](https://pypi.org/project/cardy/)
+[![License](https://img.shields.io/badge/Apache--2.0-green?label=license)](https://codeberg.org/james-ansley/cardypy/src/branch/main/LICENSE)
+
 Low-level card sorting utilities to compare card sorts — including calculating
 edit distances, d-neighbourhoods, d-cliques, and orthogonality of card sorts.
 
