@@ -1,8 +1,5 @@
 # Cardy
 
-> [!NOTE]
-> This project is in alpha, significant changes and additions are expected.
-
 Low-level card sorting utilities to compare card sorts — including calculating
 edit distances, d-neighbourhoods, d-cliques, and orthogonality of card sorts.
 
