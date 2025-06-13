@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from .distance import distance
+from .distance import distance, norm_distance, max_distance
 from .neighbourhood import neighbourhood
 from .clique import clique
 from .orthogonality import orthogonality

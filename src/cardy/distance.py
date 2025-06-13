@@ -16,7 +16,7 @@ from munkres import Munkres, make_cost_matrix
 
 from .types import CardSort
 
-__all__ = ("distance",)
+__all__ = ("distance", "max_distance", "norm_distance")
 
 
 def distance[T](sort1: CardSort[T], sort2: CardSort[T]) -> int:
@@ -34,3 +34,37 @@ def distance[T](sort1: CardSort[T], sort2: CardSort[T]) -> int:
         for row, col in Munkres().compute(cost_matrix)
     ])
     return sum(len(g) for g in sort1) - total
+
+
+def max_distance[T](sort: CardSort[T], *, num_groups: int = None) -> int:
+    """
+    Computes the maximum edit distance any other card sort could be to the
+    given card sort
+    """
+    if num_groups is None:
+        num_groups = max(len(g) for g in sort)
+    weights = []
+    for group in sort:
+        k = len(group) - len(group) // num_groups
+        weights.append([
+            k - 1 if i < len(group) % num_groups else k
+            for i in range(num_groups)
+        ])
+    return sum([
+        weights[row][col]
+        for row, col in Munkres().compute(weights)
+    ])
+
+
+def norm_distance[T](
+      sort1: CardSort[T],
+      sort2: CardSort[T],
+      *,
+      num_groups: int = None,
+) -> float:
+    """
+    Computes the normalised edit distance between the two given card sorts.
+    """
+    if num_groups is None:
+        num_groups = max(*(len(g) for g in sort1), *(len(g) for g in sort2))
+    return distance(sort1, sort2) / max_distance(sort1, num_groups=num_groups)
