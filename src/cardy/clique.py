@@ -12,17 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections.abc import Collection, Mapping
+from collections.abc import Collection, Mapping, Callable
 from random import Random
 
-from .distance import distance
+from .distance import distance as edit_distance
 from .neighbourhood import neighbourhood
-from .types import CardSort, CliqueHeuristic
+from .types import CardSort, CliqueHeuristic, Selector
 
-__all__ = ("Selector", "random_strategy", "greedy_strategy", "clique")
+__all__ = ("random_strategy", "greedy_strategy", "clique", "RandomSelector")
 
 
-class Selector:
+class RandomSelector:
     def __init__(self, seed=None):
         self.random = Random(seed)
 
@@ -32,9 +32,11 @@ class Selector:
 
 
 def random_strategy[K, T](
-      _: int,
+      _: float,
       candidates: Mapping[K, CardSort[T]],
-      selector: Selector = Selector(),
+      *,
+      selector: Selector = RandomSelector(),
+      _distance: Callable[[T, T], float] = ...,
 ) -> K:
     """
     A heuristic strategy to select clique candidates at random.
@@ -43,15 +45,18 @@ def random_strategy[K, T](
     :param candidates: The intersection of the current clique
         sort neighbourhoods
     :param selector: An object to select an item from a collection at random
+    :param _distance: An edit distance function
     :return: A randomly selected element
     """
     return selector.select(candidates)
 
 
 def greedy_strategy[K, T](
-      d: int,
+      d: float,
       candidates: Mapping[K, CardSort[T]],
-      selector: Selector = Selector(),
+      *,
+      selector: Selector = RandomSelector(),
+      distance: Callable[[T, T], float] = edit_distance,
 ) -> K:
     """
     A heuristic strategy to select candidates from a set of sorts to add to a
@@ -64,12 +69,13 @@ def greedy_strategy[K, T](
     :param candidates: The intersection of the current clique
         sort neighbourhoods
     :param selector: An object to select an item from a collection at random
+    :param distance: An edit distance function
     :return: An element that reduces the clique size by the smallest amount
     """
     current_max = 0
     max_candidates = []
     for key, candidate in candidates.items():
-        size = len(neighbourhood(d, candidate, candidates))
+        size = len(neighbourhood(d, candidate, candidates, distance=distance))
         if size > current_max:
             max_candidates = [key]
             current_max = size
@@ -79,10 +85,13 @@ def greedy_strategy[K, T](
 
 
 def clique[K, T](
-      d: int,
+      d: float,
       probe: CardSort[T],
       sorts: Mapping[K, CardSort[T]],
-      strategy: CliqueHeuristic[T] = greedy_strategy,
+      *,
+      selector: Selector[T] = RandomSelector(),
+      strategy: CliqueHeuristic[K, T] = greedy_strategy,
+      distance: Callable[[T, T], float] = edit_distance,
 ) -> set[K]:
     """
     Computes the d-clique centred around the given probe sort using the given
@@ -97,8 +106,10 @@ def clique[K, T](
     :param d: The max distance between any two sorts in the clique
     :param probe: The starting probe sort
     :param sorts: The collection of card sorts to search for the clique in
+    :param selector: A selector
     :param strategy: The heuristic strategy for selecting candidates to add to
         the clique.
+    :param distance: An edit distance function
     :return: A d-clique around the probe sort
     """
     clique_set = {
@@ -109,7 +120,7 @@ def clique[K, T](
         if 0 < distance(sort, probe) <= d
     }
     while candidates:
-        selected = strategy(d, candidates)
+        selected = strategy(d, candidates, selector=selector, distance=distance)
         clique_set.add(selected)
         candidates = {
             key: sort for key, sort in candidates.items()

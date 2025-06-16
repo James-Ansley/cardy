@@ -12,18 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Callable
 
-from .distance import distance
+from .distance import distance as edit_distance
 from .types import CardSort
 
 __all__ = ("neighbourhood",)
 
 
 def neighbourhood[K, T](
-      d: int,
+      d: float,
       probe: CardSort[T],
       sorts: Mapping[K, CardSort[T]],
+      *,
+      distance: Callable[[T, T], float] = edit_distance,
 ) -> set[K]:
     """
     Returns the d-neighbourhood of the given probe sort in the sorts iterable.
@@ -34,6 +36,7 @@ def neighbourhood[K, T](
     :param d: The max distance neighbourhood elements and the probe
     :param probe: The sort at the centre of the neighbourhood
     :param sorts: A collection of sorts to search for the neighbourhood in
+    :param distance: An edit distance function
     :return: The d-neighbourhood of the given probe
     """
     return {key for key, sort in sorts.items() if distance(probe, sort) <= d}

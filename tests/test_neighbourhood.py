@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from cardy import neighbourhood
+from cardy import neighbourhood, norm_distance
 from utils import test
 
 SORTS = {
@@ -32,8 +32,29 @@ def zero_neighbourhoods_only_include_equivalent_card_sorts():
 
 
 @test
+def zero_norm_neighbourhoods_only_include_equivalent_card_sorts():
+    dist = lambda l, r: norm_distance(l, r, num_groups=3)
+    assert neighbourhood(0, SORTS[0], SORTS, distance=dist) == {0, 1}
+    assert neighbourhood(0, SORTS[2], SORTS, distance=dist) == {2}
+    assert neighbourhood(0, ({1, 2, 3, 4, 5},), SORTS, distance=dist) == set()
+
+
+@test
 def neighbourhoods_are_returned_when_sorts_have_different_distances():
     assert neighbourhood(1, SORTS[0], SORTS) == {0, 1, 2}
     assert neighbourhood(2, SORTS[0], SORTS) == {0, 1, 2, 3, 4}
     assert neighbourhood(2, ({1, 2, 3, 4, 5},), SORTS) == {0, 1, 4}
     assert neighbourhood(3, ({1, 2, 3, 4, 5},), SORTS) == {0, 1, 2, 3, 4}
+
+
+@test
+def neighbourhoods_are_returned_when_sorts_have_different_norm_distances():
+    dist = lambda l, r: norm_distance(l, r, num_groups=3)
+    assert neighbourhood(1 / 3, SORTS[0], SORTS, distance=dist) \
+           == {0, 1, 2}
+    assert neighbourhood(2 / 3, SORTS[0], SORTS, distance=dist) \
+           == {0, 1, 2, 3, 4}
+    assert neighbourhood(2 / 3, ({1, 2, 3, 4, 5},), SORTS, distance=dist) \
+           == {0, 1, 4}
+    assert neighbourhood(3 / 3, ({1, 2, 3, 4, 5},), SORTS, distance=dist) \
+           == {0, 1, 2, 3, 4}

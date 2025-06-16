@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections.abc import Collection, Mapping
+from collections.abc import Collection, Mapping, Callable
 from itertools import combinations
 
-from .distance import distance
+from .distance import distance as edit_distance
 from .types import CardSort
 
 __all__ = ("DisjointSet", "min_spanning_tree", "orthogonality")
@@ -50,7 +50,7 @@ class DisjointSet[K]:
 
 def min_spanning_tree[K](
       vertices: Collection[K],
-      edges: Mapping[tuple[K, K], int]
+      edges: Mapping[tuple[K, K], float]
 ) -> set[tuple[K, K]]:
     f = set()
     forest = DisjointSet(vertices)
@@ -61,11 +61,19 @@ def min_spanning_tree[K](
     return f
 
 
-def orthogonality[T](sorts: Collection[CardSort[T]]) -> float:
+def orthogonality[T](
+      sorts: Collection[CardSort[T]],
+      *,
+      distance: Callable[[T, T], float] = edit_distance,
+) -> float:
     """
     Returns the orthogonality of the given collection of sorts.
 
     See: https://doi.org/10.1111/j.1468-0394.2005.00305.x
+
+    :param sorts: A collection of sorts
+    :param distance: A custom edit distance function
+    :returns: the orthogonality of the sorts
     """
     sorts = {i: s for i, s in enumerate(sorts)}
     edges = {

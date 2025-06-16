@@ -13,9 +13,27 @@
 # limitations under the License.
 
 from collections.abc import Callable, Collection, Mapping, Set
+from typing import Protocol
 
 __all__ = ("CardSort", "CliqueHeuristic")
 
+
 type CardSort[T] = Collection[Set[T]]
-type CliqueHeuristic[K, T] = \
-    Callable[[int, Mapping[K, CardSort[T]]], K]
+
+
+class Selector[T](Protocol):
+    def select(self, collection: Collection[T]) -> T:
+        ...
+
+
+
+class CliqueHeuristic[K, T](Protocol):
+    def __call__(
+          self,
+          d: float,
+          candidates: Mapping[K, CardSort[T]],
+          *,
+          selector: Selector[T] = ...,
+          distance: Callable[[T, T], float] = ...,
+    ):
+        ...

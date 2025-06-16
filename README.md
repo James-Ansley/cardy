@@ -1,8 +1,8 @@
 # Cardy
 
 [![Repository](https://img.shields.io/badge/james--ansley%2Fcardypy-102335?logo=codeberg&labelColor=07121A)](https://codeberg.org/james-ansley/cardypy)
-[![PyPi](https://img.shields.io/pypi/v/cardy?label=PyPi&labelColor=%23ffd343&color=%230073b7)](https://pypi.org/project/cardy/)
 [![License](https://img.shields.io/badge/Apache--2.0-green?label=license)](https://codeberg.org/james-ansley/cardypy/src/branch/main/LICENSE)
+[![PyPi](https://img.shields.io/pypi/v/cardy?label=PyPi&labelColor=%23ffd343&color=%230073b7)](https://pypi.org/project/cardy/)
 
 Low-level card sorting utilities to compare card sorts — including calculating
 edit distances, d-neighbourhoods, d-cliques, and orthogonality of card sorts.
@@ -48,7 +48,7 @@ if distance(sort1, sort2) == 0:
 
 #### Maximum and Normalised Edit Distances
 
-Normalised edit distances can be computed with the normDistance function:
+Normalised edit distances can be computed with the norm_distance function:
 
 ```python
 from cardy import norm_distance
@@ -117,6 +117,16 @@ print(f"2-neighbourhood around `{probe}`: {two_neighbourhood}")
 # 2-neighbourhood around `({1, 2, 3, 4, 5},)`: {0, 1, 4}
 ```
 
+Neighbourhoods can be calculated using normalised edit distances by passing a
+custom edit distance function as a named argument:
+
+```python
+dist = lambda l, r: norm_distance(l, r, num_groups=3)
+upper_quart_neighbourhood = neighbourhood(0.75, probe, sorts, distance=dist)
+print(f"Sorts within 75% of `{probe}` are {upper_quart_neighbourhood}")
+# Sorts within 75% of `({1, 2, 3, 4, 5},)` are {0, 1, 4}
+```
+
 #### Cliques
 
 Cliques can be non-deterministic — even when using a greedy strategy (default):
@@ -183,6 +193,18 @@ print(f"1-clique around `{probe}`: {one_clique}")
 
 Alternatively, a seed can be passed to the base `Selector` constructor.
 
+As with neighbourhoods, a normalised edit distance function can be passed to the
+clique call as an option:
+
+```python
+dist = lambda l, r: norm_distance(l, r, num_groups=3)
+one_clique = clique(1, probe, sorts, selector=MinSelector(), distance=dist)
+print("100%-clique around", probe, "is", oneClique);
+# 100%-clique around ({1, 2}, {3}) is {0, 1, 2}
+# Not an exciting example.
+# But what are ya gonna do? Ya know. Just one of those days.
+```
+
 ### Orthogonality
 
 The orthogonality of a collection of sorts can be calculated with the
@@ -201,6 +223,15 @@ p1 = (
 )
 p1_orthogonality = orthogonality(p1)
 print(f"P1 orthogonality: {p1_orthogonality:.2f}")  # P1 orthogonality: 2.33
+```
+
+A custom edit distance function can be passed to the orthogonality calculation:
+
+```python
+dist = lambda l, r: norm_distance(l, r, num_groups=2)
+p1_orthogonality = orthogonality(p1, distance=dist)
+print(f"P1 normalized orthogonality: {p1_orthogonality:.2f}") 
+# P1 normalized orthogonality: 0.18
 ```
 
 [^1]: Deibel, K., Anderson, R. and Anderson, R. (2005), Using edit distance to
